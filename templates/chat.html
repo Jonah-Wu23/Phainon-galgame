@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<audio id="assistant-voice" style="display: none;"></audio>
 <div class="chat-container">
     <h2>《昕旦微光：白厄的圣城纪事》</h2>
     
@@ -72,12 +73,21 @@
                     `<div class="assistant-message"><strong>白厄:</strong> ${data.response}</div>`
                 );
                 
+                // 如果返回了语音文件，播放它
+                if (data.voice_file) {
+                    const audioElement = document.getElementById('assistant-voice');
+                    audioElement.src = data.voice_file;
+                    audioElement.play().catch(error => {
+                        console.error('语音播放失败:', error);
+                    });
+                }
+                
                 // Scroll to bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             });
         });
         
-        // Handle file upload
+        // Handle file upload - 保持原样
         $('#file-upload-form').submit(function(event) {
             event.preventDefault();
             
@@ -139,7 +149,7 @@
             });
         });
         
-        // Update file input label with selected filename
+        // Update file input label with selected filename - 保持原样
         $('#file-input').on('change', function() {
             const fileName = $(this).val().split('\\').pop();
             $(this).next('.custom-file-label').text(fileName || 'Choose file');
