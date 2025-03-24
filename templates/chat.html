@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="chat-container">
+    <h2>《昕旦微光：白厄的圣城纪事》</h2>
+    
+    <div class="chat-messages" id="chat-messages">
+        <div class="assistant-message">
+            （你从昏迷中醒来，发现自己躺在一片陌生的土地上。周围是奇异的建筑风格，天空被永恒的白昼笼罩。不远处，一位银白色短发的青年正朝你走来，他的蓝色眼眸中带着一丝关切。） 白厄：（微笑着伸出手）你醒了？欢迎来到奥赫玛，这里是末世中唯一的光明之地。我是白厄，黄金裔的战士。
+        </div>
+    </div>
+    
+    <form id="message-form" class="message-form">
+        <input type="text" id="message-input" class="form-control message-input" placeholder="Type your message..." required>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+    
+    <div class="mt-3">
+        <h5>Upload File</h5>
+        <form id="file-upload-form" enctype="multipart/form-data">
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="file-input" name="file" accept=".txt,.csv">
+                    <label class="custom-file-label" for="file-input">Choose file</label>
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Upload</button>
+                </div>
+            </div>
+            <small class="form-text text-muted">Only .txt and .csv files are allowed (max 16MB)</small>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle message form submission
+        $('#message-form').submit(function(event) {
+            event.preventDefault();
+            
+            const messageInput = $('#message-input');
+            const message = messageInput.val();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            $('#chat-messages').append(
+                `<div class="user-message"><strong>你:</strong> ${message}</div>`
+            );
+            
+            // Clear input
+            messageInput.val('');
+            
+            // Scroll to bottom
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Show loading indicator
+            $('#chat-messages').append(
+                `<div id="loading-indicator" class="assistant-message"><em>白厄在思考...</em></div>`
+            );
+            
+            // Send message to server
+            $.post('/chat', { message: message }, function(data) {
+                // Remove loading indicator
+                $('#loading-indicator').remove();
+                
+                // Add assistant response
+                $('#chat-messages').append(
+                    `<div class="assistant-message"><strong>白厄:</strong> ${data.response}</div>`
+                );
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        });
+        
+        // Handle file upload
+        $('#file-upload-form').submit(function(event) {
+            event.preventDefault();
+            
+            const fileInput = $('#file-input')[0];
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert('Please select a file to upload');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            // Show loading indicator
+            $('#chat-messages').append(
+                `<div id="upload-indicator" class="assistant-message"><em>Uploading and processing file...</em></div>`
+            );
+            
+            $.ajax({
+                url: '/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    // Remove loading indicator
+                    $('#upload-indicator').remove();
+                    
+                    // Add success message
+                    $('#chat-messages').append(
+                        `<div class="assistant-message"><strong>System:</strong> ${data.message}</div>`
+                    );
+                    
+                    // Reset file input
+                    $('#file-input').val('');
+                    $('.custom-file-label').text('Choose file');
+                    
+                    // Scroll to bottom
+                    const chatMessages = document.getElementById('chat-messages');
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                },
+                error: function(xhr) {
+                    // Remove loading indicator
+                    $('#upload-indicator').remove();
+                    
+                    // Add error message
+                    let errorMessage = 'Failed to upload file';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage += ': ' + xhr.responseJSON.error;
+                    }
+                    
+                    $('#chat-messages').append(
+                        `<div class="assistant-message"><strong>Error:</strong> ${errorMessage}</div>`
+                    );
+                    
+                    // Scroll to bottom
+                    const chatMessages = document.getElementById('chat-messages');
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            });
+        });
+        
+        // Update file input label with selected filename
+        $('#file-input').on('change', function() {
+            const fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').text(fileName || 'Choose file');
+        });
+    });
+</script>
+{% endblock %}

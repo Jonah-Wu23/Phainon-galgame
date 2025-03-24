@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                Admin Instructions
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Set special instructions for the DeepSeek V3 model. These instructions will be applied to all user conversations
+                    but will not be visible to regular users.
+                </p>
+                
+                <form method="POST" action="{{ url_for('admin_instruction') }}">
+                    <div class="form-group">
+                        <label for="instruction">Model Instructions</label>
+                        <textarea class="form-control" id="instruction" name="instruction" rows="10" placeholder="Enter instructions for the model..."></textarea>
+                        <small class="form-text text-muted">
+                            These instructions will be sent as a system message before each user query.
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Instructions</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

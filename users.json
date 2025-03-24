@@ -1,0 +1,14 @@
+[
+  {
+    "id": "1",
+    "username": "admin",
+    "password": "scrypt:32768:8:1$lBG9npsKATxEkt6F$57f3c9304be2334f16a44bb197dfd9a3cdfa7f487bb8d450e21178b1ace2446ccfbedcda0b034a957f255869f0dcb4367a65b8292354eb807b1b8db845b073ff",
+    "is_admin": true
+  },
+  {
+    "id": "2",
+    "username": "user",
+    "password": "scrypt:32768:8:1$qztCNWXuRyyqD5BO$0c6408b39a906b73d705e65f2f393a2e520711de44159b53d966e26136617df99d6a7b75c3f656f181d15cb7007a9992b0bf136f12235efae77603832fc5746f",
+    "is_admin": false
+  }
+]
